@@ -148,6 +148,11 @@
             "description": "[SLURM] How many HPC nodes to run on",
             "type": "string"
         },
+        "slurm-account": {
+            "default": "blanca-ics",
+            "description": "[SLURM] For Blanca the ACCOUNT should be set to the sub-account of choice (e.g. blanca-ics-rray). For Alpine, the account should be set to ucb-general, or the specialized account granted by RC: ucb278_asc2",
+            "type": "string"
+        },
         "slurm-partition": {
             "default": "blanca-ics",
             "description": "[SLURM] Blanca, Alpine, or Summit partitions can be entered",
@@ -178,7 +183,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc1"
+            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc2"
         },
         "license": {
             "non-commercial-use-only": false,
@@ -299,7 +304,7 @@
             "base": "api-key",
             "read-only": true
         },
-        "recon-spec": {
+        "recon-spec-json": {
             "description": "json file specifying a reconstruction pipeline. Include for use with custom workflows or to run multi-workflow processing. Built-in recon-spec may be selected using configuration settings.",
             "base": "file",
             "optional": true
@@ -311,5 +316,5 @@
     "name": "bids-qsirecon",
     "source": "https://qsirecon.readthedocs.io/en/latest/",
     "url": "https://github.com/intermountainneuroimaging/bids-qsirecon",
-    "version": "0.23.2_inc0.0rc1"
+    "version": "0.23.2_inc0.0rc2"
 }

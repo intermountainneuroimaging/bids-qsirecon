@@ -6,7 +6,7 @@
 !poetry.lock
 !run.py
 !manifest.json
-!fw_gear_bids_qsiprep
+!fw_gear_bids_qsirecon
 !utils
 !tests
 !.pre-commit-config.yaml
