@@ -1,0 +1,260 @@
+{
+  "description": "Additional rules for matching data",
+  "exclude_rules": [
+    "bids_fieldmap_phase_encoded_file"
+  ],
+  "extends": "bids-v1",
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": ""
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": {
+            "$process": true,
+            "$value": "{subject.code}",
+            "$format": [
+              {
+                "$camelCase": true
+              }
+            ]
+          }
+        }
+      },
+      "required": []
+    },
+    "fieldmap_phase_file": {
+      "description": "BIDS template for field map files",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-<subject.code>[_ses-<session.info.BIDS.Label>][_acq-{file.info.BIDS.Acq}][_run-{file.info.BIDS.Run}][_dir-{file.info.BIDS.Dir}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "fmap"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-<subject.code>[/ses-<session.info.BIDS.Label>]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Dir": {
+          "type": "string",
+          "title": "Dir Label",
+          "default": ""
+        },
+        "IntendedFor": {
+          "$ref": "#/definitions/IntendedFor"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "fieldmap",
+          "enum": [
+            "phasediff",
+            "phase1",
+            "phase2",
+            "fieldmap",
+            "epi"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Modality"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "id": "fieldmap_phase_encoded_file",
+      "initialize": {
+        "Dir": {
+          "$comment": "Currently matching bipedal orientations",
+          "acquisition.label": {
+            "$regex": "([^a-zA-Z0-9]|^)(?P<value>[aprlhfAPRLHF]{2})([^a-zA-Z0-9]|$)"
+          }
+        }
+      },
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "acquisition.label": {
+          "$regex": "[Tt]opup"
+        },
+        "container_type": "file",
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        }
+      }
+    },
+    {
+      "id": "fieldmap_phase_file",
+      "template": "fieldmap_phase_file",
+      "where": {
+        "file.info.ImageType": {
+          "$in": [
+            "P"
+          ]
+        },
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "container_type": "file"
+      },
+      "initialize": {
+        "Modality": "phasediff",
+        "EchoTime1": [
+          {
+            "Folder": "fmap",
+            "Modality": "magnitude1"
+          }
+        ],
+        "EchoTime2": [
+          {
+            "Folder": "fmap",
+            "Modality": "magnitude2"
+          }
+        ],
+        "delete_info": [
+          "EchoTime",
+          "EchoNumber"
+        ]
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "bids_func_file",
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(^|_)[Tt]ask_(?P<value>[^_]+)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "_(?P<value>\\d+)(_|$)"
+          }
+        },
+        "Modality": {
+          "$switch": {
+            "$on": "file.info.ImageType",
+            "$cases": [
+              {
+                "$eq": [
+                  "ORIGINAL",
+                  "PRIMARY",
+                  "M",
+                  "ND",
+                  "MOSAIC"
+                ],
+                "$value": "bold"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "rule": "bids_fieldmap_file",
+      "initialize": {
+        "Modality": {
+          "$switch": {
+            "$on": "file.info.EchoNumber",
+            "$cases": [
+              {
+                "$eq": 1,
+                "$value": "magnitude1"
+              },
+              {
+                "$eq": 2,
+                "$value": "magnitude2"
+              },
+              {
+                "$default": true,
+                "$value": "magnitude"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "rule": "fieldmap_phase_encoded_file",
+      "initialize": {
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "^[Tt]opup.*_(?P<value>\\d+mm_\\d+sec)",
+            "$format": [
+              {
+                "$replace": {
+                  "$pattern": "_",
+                  "$replacement": ""
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "resolvers": [
+    {
+      "id": "phasediff_echo_time1",
+      "templates": [
+        "fieldmap_file"
+      ],
+      "update": "file.info.EchoTime1",
+      "filter": "file.info.BIDS.EchoTime1",
+      "resolveFor": "session",
+      "type": "file",
+      "value": "file.info.EchoTime"
+    },
+    {
+      "id": "phasediff_echo_time2",
+      "templates": [
+        "fieldmap_file"
+      ],
+      "update": "file.info.EchoTime2",
+      "filter": "file.info.BIDS.EchoTime2",
+      "resolveFor": "session",
+      "type": "file",
+      "value": "file.info.EchoTime"
+    }
+  ]
+}

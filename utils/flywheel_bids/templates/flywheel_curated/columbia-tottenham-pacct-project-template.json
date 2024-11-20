@@ -1,0 +1,271 @@
+{
+  "extends": "bids-v1",
+  "description": "Additional rules for matching Tottenham data",
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": "",
+          "pattern": "^[0-9]+$"
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": "{subject.code}"
+        }
+      },
+      "required": []
+    },
+    "Run": {
+      "type": "string",
+      "title": "Run Index",
+      "default": "",
+      "pattern": "^[0-9]*[a-z]?$"
+    },
+    "func_file": {
+      "description": "BIDS template for func files",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{session.info.BIDS.Subject}[_ses-<session.info.BIDS.Label>]_task-{file.info.BIDS.Task}[_acq-{file.info.BIDS.Acq}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_echo-{file.info.BIDS.Echo}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "func"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{session.info.BIDS.Subject}[/ses-<session.info.BIDS.Label>]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "type": "string",
+          "title": "Run Index",
+          "default": "1",
+          "pattern": "^[0-9]*[a-z]?$"
+        },
+        "Echo": {
+          "$ref": "#/definitions/Echo"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "bold",
+          "enum": [
+            "bold",
+            "sbref",
+            "stim",
+            "physio"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Task",
+        "Modality"
+      ]
+    }
+  },
+  "exclude_rules": [
+    "bids_session",
+    "bids_task_events_file",
+    "bids_func_file"
+  ],
+  "rules": [
+    {
+      "_id": "session",
+      "template": "session",
+      "where": {
+        "container_type": "session"
+      },
+      "initialize": {
+        "Label": {
+          "session.label": {
+            "$regex": "PA[0-9]+-V(?P<value>[^-_]+)"
+          }
+        }
+      }
+    },
+    {
+      "_id": "task_events_file",
+      "template": "task_events_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "session",
+        "file.type": {
+          "$in": [
+            "tabular data",
+            "Tabular Data"
+          ]
+        },
+        "file.name": {
+          "$regex": "^.*\\.tsv$"
+        }
+      },
+      "initialize": {
+        "Task": {
+          "file.name": {
+            "$regex": "PA[0-9]+_(?P<value>[^-_]+)"
+          }
+        },
+        "Run": {
+          "file.name": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)RUN(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "task_events.{file.info.BIDS.Task}"
+          }
+        }
+      }
+    },
+    {
+      "id": "moco_func_file",
+      "template": "func_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Functional"
+          ]
+        },
+        "acquisition.label": {
+          "$in": [
+            "MoCoSeries"
+          ]
+        }
+      },
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(?P<value>[^0-9-]+[^0-9-])",
+            "$format": [
+              {
+                "$replace": {
+                  "$pattern": "_",
+                  "$replacement": ""
+                }
+              }
+            ]
+          }
+        },
+        "Rec": "moco",
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(?P<value>\\d+)"
+          }
+        }
+      }
+    },
+    {
+      "id": "func_file",
+      "template": "func_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Functional"
+          ]
+        },
+        "acquisition.label": {
+          "$in": [
+            "poke",
+            "faces_matching",
+            "effort",
+            "REST"
+          ]
+        }
+      },
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(?P<value>[^-]+[^0-9])",
+            "$format": [
+              {
+                "$replace": {
+                  "$pattern": "_",
+                  "$replacement": ""
+                }
+              }
+            ]
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(?P<value>\\d+)"
+          }
+        }
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "bids_fieldmap_phase_encoded_file",
+      "where": {
+        "file.info.ImageType": {
+          "$in": [
+            "DIFFUSION"
+          ]
+        }
+      },
+      "initialize": {
+        "Acq": "dti",
+        "IntendedFor": [
+          {
+            "Folder": "dwi"
+          }
+        ]
+      }
+    },
+    {
+      "rule": "bids_fieldmap_phase_encoded_file",
+      "where": {
+        "file.info.ImageType": {
+          "$in": [
+            "M"
+          ]
+        }
+      },
+      "initialize": {
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    }
+  ]
+}

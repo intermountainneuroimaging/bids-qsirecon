@@ -1,0 +1,357 @@
+{
+  "extends": "bids-v1",
+  "description": "Additional rules for demo",
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": "",
+          "auto_update": {
+            "$process": true,
+            "$value": "{session.label}",
+            "$format": [
+              {
+                "$lower": true
+              }
+            ]
+          }
+        },
+        "subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": {
+            "$process": true,
+            "$value": "{subject.code}",
+            "$format": [
+              {
+                "$lower": true
+              }
+            ]
+          }
+        }
+      },
+      "required": []
+    },
+    "Part": {
+      "type": "string",
+      "title": "Part Label",
+      "default": "",
+      "pattern": "^(phase|mag)?$"
+    },
+    "func_file": {
+      "description": "BIDS template for func files",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-<subject.code>[_ses-<session.info.BIDS.Label>]_task-{file.info.BIDS.Task}[_acq-{file.info.BIDS.Acq}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_part-{file.info.BIDS.Part}][_echo-{file.info.BIDS.Echo}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "func"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-<subject.code>[/ses-<session.info.BIDS.Label>]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Echo": {
+          "$ref": "#/definitions/Echo"
+        },
+        "Part": {
+          "$ref": "#/definitions/Part"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "bold",
+          "enum": [
+            "bold",
+            "sbref",
+            "stim",
+            "physio"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Task",
+        "Modality"
+      ]
+    },
+    "fieldmap_phase_encoded_file": {
+      "description": "BIDS template for phase encoded field map files",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "label": "Filename",
+          "default": "",
+          "auto_update": "sub-<subject.code>[_ses-<session.info.BIDS.Label>][_acq-{file.info.BIDS.Acq}][_run-{file.info.BIDS.Run}][_part-{file.info.BIDS.Part}]_dir-{file.info.BIDS.Dir}_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "label": "Folder",
+          "default": "fmap"
+        },
+        "Path": {
+          "type": "string",
+          "label": "Path",
+          "default": "",
+          "auto_update": "sub-<subject.code>[/ses-<session.info.BIDS.Label>]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "type": "string",
+          "label": "Acq Label",
+          "default": ""
+        },
+        "Run": {
+          "type": "string",
+          "label": "Run Index",
+          "default": ""
+        },
+        "Dir": {
+          "type": "string",
+          "label": "Dir Label",
+          "default": ""
+        },
+        "Part": {
+          "$ref": "#/definitions/Part",
+          "default": ""
+        },
+        "IntendedFor": {
+          "$ref": "#/definitions/IntendedFor"
+        },
+        "Modality": {
+          "type": "string",
+          "label": "Modality Label",
+          "default": "epi",
+          "enum": [
+            "phasediff",
+            "magnitude1",
+            "magnitude2",
+            "phase1",
+            "phase2",
+            "magnitude",
+            "fieldmap",
+            "epi"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Folder",
+        "Path",
+        "Modality",
+        "Dir"
+      ]
+    }
+  },
+  "exclude_rules": [
+    "bids_func_file",
+    "bids_fieldmap_phase_encoded_file"
+  ],
+  "rules": [
+    {
+      "template": "acquisition_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Functional",
+            "Fieldmap"
+          ]
+        },
+        "file.info.ImageType": {
+          "$in": [
+            "P"
+          ]
+        }
+      }
+    },
+    {
+      "id": "fieldmap_phase_encoded_file",
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "(?i)DISTORT"
+        }
+      },
+      "initialize": {
+        "Dir": {
+          "$comment": "Currently matching bipedal orientations",
+          "acquisition.label": {
+            "$regex": "([^a-zA-Z0-9]|^)(?P<value>[aprlhfAPRLHF]{2})([^a-zA-Z0-9]|$)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "field_map.{file.info.BIDS.Dir}"
+          }
+        },
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    },
+    {
+      "template": "func_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Functional"
+          ]
+        }
+      },
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(^|_)task-(?P<value>[^-_]+)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "functional.{file.info.BIDS.Task}.{file.info.BIDS.Modality}[.{file.info.BIDS.Part}]"
+          }
+        },
+        "Modality": {
+          "$switch": {
+            "$on": "file.info.ImageType",
+            "$cases": [
+              {
+                "$eq": [
+                  "ORIGINAL",
+                  "PRIMARY",
+                  "P",
+                  "ND",
+                  "MOSAIC"
+                ],
+                "$value": "sbref"
+              },
+              {
+                "$eq": [
+                  "ORIGINAL",
+                  "PRIMARY",
+                  "M",
+                  "ND",
+                  "MOSAIC"
+                ],
+                "$value": "sbref"
+              },
+              {
+                "$eq": [
+                  "ORIGINAL",
+                  "PRIMARY",
+                  "M",
+                  "ND",
+                  "NORM",
+                  "MOSAIC"
+                ],
+                "$value": "sbref"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "template": "task_events_file",
+      "where": {
+        "container_type": "file",
+        "file.name": {
+          "$regex": "_task-[a-z]+_run-\\d+\\.tsv"
+        }
+      },
+      "initialize": {
+        "Task": {
+          "file.name": {
+            "$regex": "_task-(?P<value>[a-z]+)"
+          }
+        },
+        "Run": {
+          "file.name": {
+            "$regex": [
+              "_run-(?P<value>\\d+)"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "bids_project_file",
+      "where": {
+        "file.name": {
+          "$regex": "\\.mat$"
+        }
+      },
+      "initialize": {
+        "Filename": {
+          "file.name": {
+            "$take": true
+          }
+        },
+        "Path": "stimuli"
+      }
+    }
+  ]
+}

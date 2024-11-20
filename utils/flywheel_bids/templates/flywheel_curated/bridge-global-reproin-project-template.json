@@ -1,0 +1,1334 @@
+{
+  "namespace": "BIDS",
+  "description": "Namespace for BIDS info objects in Flywheel",
+  "definitions": {
+    "Filename": {
+      "type": "string",
+      "title": "Filename",
+      "default": "",
+      "minLength": 1
+    },
+    "Acq": {
+      "type": "string",
+      "title": "Acquisition Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "Ce": {
+      "type": "string",
+      "title": "Contrast Agent Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "Rec": {
+      "type": "string",
+      "title": "Reconstruction Algorithm Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "Run": {
+      "type": "string",
+      "title": "Run Index",
+      "default": "",
+      "pattern": "^[0-9]*$"
+    },
+    "Mod": {
+      "type": "string",
+      "title": "Modality Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "Task": {
+      "type": "string",
+      "title": "Task Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]+$"
+    },
+    "Dir": {
+      "type": "string",
+      "title": "Phase-Encoding Direction Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "Echo": {
+      "type": "string",
+      "title": "Echo Index",
+      "default": "",
+      "pattern": "^[0-9]*$"
+    },
+    "Recording": {
+      "type": "string",
+      "title": "Recording Label",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]*$"
+    },
+    "IntendedFor": {
+      "type": "array",
+      "title": "IntendedFor",
+      "default": [
+        {
+          "Folder": "func"
+        }
+      ]
+    },
+    "SeqType": {
+      "type": "string",
+      "title": "A BIDS sequence type",
+      "default": "",
+      "pattern": "^[a-zA-Z0-9]+$"
+    },
+    "reproinString": {
+      "type": "string",
+      "title": "BIDS string minus the subject",
+      "default": ""
+    },
+    "Custom": {
+      "type": "string",
+      "title": "__custom",
+      "default": "",
+      "pattern": ""
+    },
+    "project": {
+      "description": "BIDS project template",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "title": "Name",
+          "default": "",
+          "auto_update": "{project.label}"
+        },
+        "BIDSVersion": {
+          "type": "string",
+          "title": "BIDS Version",
+          "default": "1.2.2"
+        },
+        "License": {
+          "type": "string",
+          "title": "License",
+          "default": ""
+        },
+        "Authors": {
+          "type": "string",
+          "title": "Authors",
+          "default": []
+        },
+        "Acknowledgements": {
+          "type": "string",
+          "title": "Acknowledgements",
+          "default": ""
+        },
+        "HowToAcknowledge": {
+          "type": "string",
+          "title": "How To Acknowledge",
+          "default": ""
+        },
+        "Funding": {
+          "type": "string",
+          "title": "Funding Sources",
+          "default": ""
+        },
+        "ReferencesAndLinks": {
+          "type": "string",
+          "title": "Reference and Links",
+          "default": []
+        },
+        "DatasetDOI": {
+          "type": "string",
+          "title": "Dataset DOI",
+          "default": ""
+        }
+      },
+      "required": []
+    },
+    "project_file": {
+      "description": "BIDS project file template",
+      "properties": {
+        "Filename": {
+          "$ref": "#/definitions/Filename"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": ""
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": ""
+        }
+      },
+      "required": [
+        "Filename"
+      ]
+    },
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": "",
+          "auto_update": "<session.label>"
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": "<subject.code>"
+        }
+      },
+      "required": []
+    },
+    "session_file": {
+      "description": "BIDS session file template",
+      "properties": {
+        "Filename": {
+          "$ref": "#/definitions/Filename"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "",
+          "auto_update": "[_ses-{session.info.BIDS.Label}]"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]"
+        }
+      },
+      "required": [
+        "Filename"
+      ]
+    },
+    "acquisition": {
+      "description": "BIDS acquisition template",
+      "properties": {},
+      "required": []
+    },
+    "anat_file": {
+      "description": "BIDS anat file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}][_acq-{file.info.BIDS.Acq}][_ce-{file.info.BIDS.Ce}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_mod-{file.info.BIDS.Mod}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "anat"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Ce": {
+          "$ref": "#/definitions/Ce"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Mod": {
+          "$ref": "#/definitions/Mod"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "T1w",
+            "T2w",
+            "T1rho",
+            "T1map",
+            "T2map",
+            "T2star",
+            "FLAIR",
+            "FLASH",
+            "PD",
+            "PDmap",
+            "PDT2",
+            "inplaneT1",
+            "inplaneT2",
+            "angio",
+            "defacemask",
+            "SWImagandphase"
+          ]
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Modality"
+      ]
+    },
+    "func_file": {
+      "description": "BIDS func file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}]_task-{file.info.BIDS.Task}[_acq-{file.info.BIDS.Acq}][_ce-{file.info.BIDS.Ce}][_dir-{file.info.BIDS.Dir}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_echo-{file.info.BIDS.Echo}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "func"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Ce": {
+          "$ref": "#/definitions/Ce"
+        },
+        "Dir": {
+          "$ref": "#/definitions/Dir"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Echo": {
+          "$ref": "#/definitions/Echo"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "bold",
+            "cbv",
+            "phase",
+            "sbref"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Task",
+        "Modality"
+      ]
+    },
+    "task_events_file": {
+      "description": "BIDS task events file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}]_task-{file.info.BIDS.Task}[_acq-{file.info.BIDS.Acq}][_ce-{file.info.BIDS.Ce}][_dir-{file.info.BIDS.Dir}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_echo-{file.info.BIDS.Echo}]_events.tsv"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "func"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Ce": {
+          "$ref": "#/definitions/Ce"
+        },
+        "Dir": {
+          "$ref": "#/definitions/Dir"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Echo": {
+          "$ref": "#/definitions/Echo"
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Task"
+      ]
+    },
+    "physio_task_file": {
+      "description": "BIDS physio file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}]_task-{file.info.BIDS.Task}[_acq-{file.info.BIDS.Acq}][_ce-{file.info.BIDS.Ce}][_dir-{file.info.BIDS.Dir}][_rec-{file.info.BIDS.Rec}][_run-{file.info.BIDS.Run}][_echo-{file.info.BIDS.Echo}][_recording-{file.info.BIDS.Recording}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "func"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Ce": {
+          "$ref": "#/definitions/Ce"
+        },
+        "Dir": {
+          "$ref": "#/definitions/Dir"
+        },
+        "Rec": {
+          "$ref": "#/definitions/Rec"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Echo": {
+          "$ref": "#/definitions/Echo"
+        },
+        "Recording": {
+          "$ref": "#/definitions/Recording"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "stim",
+            "physio"
+          ]
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Task",
+        "Modality"
+      ]
+    },
+    "diffusion_file": {
+      "description": "BIDS diffusion file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}][_acq-{file.info.BIDS.Acq}][_dir-{file.info.BIDS.Dir}][_run-{file.info.BIDS.Run}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "dwi"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Dir": {
+          "$ref": "#/definitions/Dir"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "dwi",
+            "sbref"
+          ]
+        }
+      },
+      "required": [
+        "Filename",
+        "Modality"
+      ]
+    },
+    "fieldmap_file": {
+      "description": "BIDS fieldmap file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}][_acq-{file.info.BIDS.Acq}][_run-{file.info.BIDS.Run}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "fmap"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "phasediff",
+            "magnitude1",
+            "magnitude2",
+            "phase1",
+            "phase2",
+            "magnitude",
+            "fieldmap"
+          ]
+        },
+        "IntendedFor": {
+          "$ref": "#/definitions/IntendedFor"
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Modality"
+      ]
+    },
+    "fieldmap_phase_encoded_file": {
+      "description": "BIDS fieldmap phase-encoded file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}][_acq-{file.info.BIDS.Acq}][_ce-{file.info.BIDS.Ce}]_dir-{file.info.BIDS.Dir}[_run-{file.info.BIDS.Run}]_{file.info.BIDS.Modality}{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "fmap"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Acq": {
+          "$ref": "#/definitions/Acq"
+        },
+        "Ce": {
+          "$ref": "#/definitions/Ce"
+        },
+        "Dir": {
+          "type": "string",
+          "label": "Phase-Encoding Direction Label",
+          "default": "NA",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9]*$"
+        },
+        "Run": {
+          "$ref": "#/definitions/Run"
+        },
+        "Modality": {
+          "type": "string",
+          "title": "Modality Label",
+          "default": "",
+          "enum": [
+            "epi"
+          ]
+        },
+        "IntendedFor": {
+          "$ref": "#/definitions/IntendedFor"
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Dir",
+        "Modality"
+      ]
+    },
+    "beh_events_file": {
+      "description": "BIDS behavioral event file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "default": "",
+          "minLength": 1,
+          "auto_update": "sub-{subject.code}[_ses-{session.info.BIDS.Label}]_task-{file.info.BIDS.Task}_events.tsv"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "beh"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.Folder}"
+        },
+        "Task": {
+          "$ref": "#/definitions/Task"
+        },
+        "Custom": {
+          "$ref": "#/definitions/Custom"
+        }
+      },
+      "required": [
+        "Filename",
+        "Task"
+      ]
+    },
+    "dicom_file": {
+      "description": "BIDS DICOM file template",
+      "properties": {
+        "Filename": {
+          "type": "string",
+          "title": "Filename",
+          "auto_update": "sub-{subject.code}_[ses-{session.info.BIDS.Label}_]{file.info.BIDS.reproinString}[_{file.info.BIDS.Modality}]{ext}"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": "sourcedata"
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": "",
+          "auto_update": "{file.info.BIDS.Folder}/sub-{subject.code}[/ses-{session.info.BIDS.Label}]/{file.info.BIDS.SeqType}"
+        },
+        "SeqType": {
+          "$ref": "#/definitions/SeqType"
+        },
+        "reproinString": {
+          "$ref": "#/definitions/reproinString"
+        }
+      },
+      "required": [
+        "Filename",
+        "Folder"
+      ]
+    },
+    "json_file": {
+      "description": "BIDS JSON file template",
+      "properties": {
+        "Filename": {
+          "$ref": "#/definitions/Filename"
+        },
+        "Folder": {
+          "type": "string",
+          "title": "Folder",
+          "default": ""
+        },
+        "Path": {
+          "type": "string",
+          "title": "Path",
+          "default": ""
+        }
+      },
+      "required": [
+        "Filename"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "id": "bids_project",
+      "template": "project",
+      "where": {
+        "container_type": "project"
+      }
+    },
+    {
+      "id": "bids_project_file",
+      "template": "project_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "project"
+      }
+    },
+    {
+      "id": "bids_session",
+      "template": "session",
+      "where": {
+        "container_type": "session"
+      }
+    },
+    {
+      "id": "bids_session_file",
+      "template": "session_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "session"
+      }
+    },
+    {
+      "id": "bids_acquisition",
+      "template": "acquisition",
+      "where": {
+        "container_type": "acquisition"
+      },
+      "initialize": {
+        "ignore": {
+          "$switch": {
+            "$on": "acquisition.label",
+            "$cases": [
+              {
+                "$regex": "(^|_)ignore-BIDS",
+                "$value": true
+              },
+              {
+                "$default": true,
+                "$value": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "reproin_anat_file",
+      "template": "anat_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Structural"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": ".*(anat(-.+|$))"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "nifti",
+                "$value": "anat"
+              },
+              {
+                "$default": true,
+                "$value": "anat"
+              }
+            ]
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Ce": {
+          "acquisition.label": {
+            "$regex": "(^|_)ce-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Rec": {
+          "acquisition.label": {
+            "$regex": "(^|_)rec-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "anat"
+          }
+        },
+        "Mod": {
+          "acquisition.label": {
+            "$regex": "(^|_)mod-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Modality": {
+          "acquisition.label": {
+            "$regex": ".*anat-(?P<value>.+?)(_)"
+          }
+        }
+      }
+    },
+    {
+      "id": "reproin_func_file",
+      "template": "func_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Functional"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": ".*(func(-.+|$))"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "nifti",
+                "$value": "func"
+              },
+              {
+                "$default": true,
+                "$value": "func"
+              }
+            ]
+          }
+        },
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(^|_)task-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Ce": {
+          "acquisition.label": {
+            "$regex": "(^|_)ce-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Rec": {
+          "acquisition.label": {
+            "$regex": "(^|_)rec-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "functional.{file.info.BIDS.Task}"
+          }
+        },
+        "Echo": {
+          "acquisition.label": {
+            "$regex": "(^|_)echo-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Modality": {
+          "acquisition.label": {
+            "$regex": ".*func-(?P<value>.+?)(_)"
+          }
+        }
+      }
+    },
+    {
+      "id": "reproin_task_events_file",
+      "template": "task_events_file",
+      "where": {
+        "container_type": "file",
+        "file.name": {
+          "$regex": "events.tsv"
+        },
+        "file.type": {
+          "$in": [
+            "tabular data",
+            "Tabular Data"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": ".*(func(-.+|$))"
+        }
+      },
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(^|_)task-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Ce": {
+          "acquisition.label": {
+            "$regex": "(^|_)ce-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Rec": {
+          "acquisition.label": {
+            "$regex": "(^|_)rec-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "task_events.{file.info.BIDS.Task}"
+          }
+        },
+        "Echo": {
+          "acquisition.label": {
+            "$regex": "(^|_)echo-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Modality": {
+          "acquisition.label": {
+            "$regex": ".*func-(?P<value>.+?)(_)"
+          }
+        }
+      }
+    },
+    {
+      "id": "reproin_physio_file",
+      "template": "physio_task_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.name": {
+          "$regex": "(dicom.zip|physio.tsv.gz)$"
+        },
+        "file.type": {
+          "$in": [
+            "tabular data",
+            "Tabular Data",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "^func(-|_).*PhysioLog"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "tabular data",
+                "$value": "func"
+              },
+              {
+                "$default": true,
+                "$value": "func"
+              }
+            ]
+          }
+        },
+        "Task": {
+          "acquisition.label": {
+            "$regex": "(^|_)task-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Ce": {
+          "acquisition.label": {
+            "$regex": "(^|_)ce-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Rec": {
+          "acquisition.label": {
+            "$regex": "(^|_)rec-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "physio.{file.info.BIDS.Task}"
+          }
+        },
+        "Echo": {
+          "acquisition.label": {
+            "$regex": "(^|_)echo-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Recording": {
+          "file.name": {
+            "$regex": "(^|_)recording-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Modality": "physio"
+      }
+    },
+    {
+      "id": "reproin_diffusion_file",
+      "template": "diffusion_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI",
+            "bvec",
+            "bval",
+            "BVEC",
+            "BVAL",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Structural",
+            "Diffusion"
+          ]
+        },
+        "file.info.ImageType": {
+          "$in": [
+            "ORIGINAL"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": ".*(dwi(_.+|-.+|$))"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "nifti",
+                "$value": "dwi"
+              },
+              {
+                "$default": true,
+                "$value": "dwi"
+              }
+            ]
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "diffusion"
+          }
+        },
+        "Modality": "dwi"
+      }
+    },
+    {
+      "id": "reproin_fieldmap_file",
+      "template": "fieldmap_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": ".*fmap-((?!epi.*))"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "nifti",
+                "$value": "fmap"
+              },
+              {
+                "$default": true,
+                "$value": "fmap"
+              }
+            ]
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "field_map"
+          }
+        },
+        "Modality": {
+          "acquisition.label": {
+            "$regex": "^fmap-(?P<value>.*?)(_|$)"
+          }
+        }
+      }
+    },
+    {
+      "id": "reproin_phase_encoded_fieldmap_file",
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "container_type": "file",
+        "parent_container_type": "acquisition",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI",
+            "dicom",
+            "DICOM"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "^fmap-epi_"
+        }
+      },
+      "initialize": {
+        "Folder": {
+          "$switch": {
+            "$on": "file.type",
+            "$cases": [
+              {
+                "$eq": "dicom",
+                "$value": "sourcedata"
+              },
+              {
+                "$eq": "nifti",
+                "$value": "fmap"
+              },
+              {
+                "$default": true,
+                "$value": "fmap"
+              }
+            ]
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Ce": {
+          "acquisition.label": {
+            "$regex": "(^|_)ce-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "field_map.{file.info.BIDS.Dir}"
+          }
+        },
+        "Echo": {
+          "acquisition.label": {
+            "$regex": "(^|_)echo-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Modality": {
+          "acquisition.label": {
+            "$regex": ".*fmap-(?P<value>.+?)(_)"
+          }
+        }
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "reproin_fieldmap_file",
+      "where": {
+        "file.name": {
+          "$regex": "_e.*_ph.nii.*"
+        },
+        "acquisition.label": {
+          "$in": "fmap-gre_acq-siemens"
+        }
+      },
+      "initialize": {
+        "Modality": "phasediff",
+        "Acq": "greSiemens"
+      }
+    },
+    {
+      "rule": "reproin_fieldmap_file",
+      "where": {
+        "file.name": {
+          "$regex": "_e1.nii.*"
+        },
+        "acquisition.label": {
+          "$in": "fmap-gre_acq-siemens"
+        }
+      },
+      "initialize": {
+        "Modality": "magnitude1",
+        "Acq": "greSiemens"
+      }
+    },
+    {
+      "rule": "reproin_fieldmap_file",
+      "where": {
+        "file.name": {
+          "$regex": "_e2.nii.*"
+        },
+        "acquisition.label": {
+          "$in": "fmap-gre_acq-siemens"
+        }
+      },
+      "initialize": {
+        "Modality": "magnitude2",
+        "Acq": "greSiemens"
+      }
+    }
+  ],
+  "resolvers": [
+    {
+      "id": "bids_intended_for",
+      "templates": [
+        "fieldmap_file",
+        "fieldmap_phase_encoded_file"
+      ],
+      "update": "file.info.IntendedFor",
+      "filter": "file.info.BIDS.IntendedFor",
+      "resolveFor": "session",
+      "type": "file",
+      "format": "[ses-{session.info.BIDS.Label}/]{file.info.BIDS.Folder}/{file.info.BIDS.Filename}"
+    }
+  ]
+}

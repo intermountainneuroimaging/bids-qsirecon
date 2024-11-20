@@ -1,0 +1,113 @@
+{
+  "extends": "bids-v1",
+  "description": "Additional rules for matching Ellen_Curiosity data",
+  "exclude_rules": [
+    "bids_fieldmap_phase_encoded_file"
+  ],
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": ""
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": "<subject.code>"
+        }
+      },
+      "required": []
+    }
+  },
+  "rules": [
+    {
+      "id": "bids_fieldmap_phase_encoded_file",
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "cmrr_mbep2d"
+        }
+      },
+      "initialize": {
+        "Dir": {
+          "$comment": "Currently matching bipedal orientations",
+          "acquisition.label": {
+            "$regex": "([^a-zA-Z0-9]|^)(?P<value>[aprlhfAPRLHF]{2})([^a-zA-Z0-9]|$)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "field_map.{file.info.BIDS.Dir}"
+          }
+        }
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "bids_func_file",
+      "initialize": {
+        "Task": {
+          "acquisition.label": {
+            "$regex": "^(?P<value>[^_]+)",
+            "$format": [
+              {
+                "$replace": {
+                  "$pattern": "Curiosity",
+                  "$replacement": "Cur"
+                }
+              }
+            ]
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "_R(?P<value>\\d+)(_|$)"
+          }
+        }
+      }
+    },
+    {
+      "rule": "bids_fieldmap_file",
+      "initialize": {
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    },
+    {
+      "rule": "bids_fieldmap_phase_encoded_file",
+      "initialize": {
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    }
+  ]
+}

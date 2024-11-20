@@ -1,0 +1,226 @@
+{
+  "extends": "bids-v1",
+  "description": "Additional rules for matching Daniel Context data",
+  "exclude_rules": [
+    "bids_fieldmap_phase_encoded_file",
+    "bids_fieldmap_file"
+  ],
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": "01"
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": "<subject.code>"
+        }
+      },
+      "required": []
+    }
+  },
+  "rules": [
+    {
+      "id": "gre_fieldmap_file",
+      "template": "fieldmap_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "^gre_field_mapping"
+        }
+      },
+      "initialize": {
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "field_map"
+          }
+        },
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bids_fieldmap_phase_encoded_file",
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        },
+        "acquisition.label": {
+          "$regex": "cmrr_mbep2d"
+        }
+      },
+      "initialize": {
+        "Dir": {
+          "$comment": "Currently matching bipedal orientations",
+          "acquisition.label": {
+            "$regex": "([^a-zA-Z0-9]|^)(?P<value>[aprlhfAPRLHF]{2})([^a-zA-Z0-9]|$)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "field_map.{file.info.BIDS.Dir}"
+          }
+        }
+      }
+    }
+  ],
+  "initializers": [
+    {
+      "rule": "bids_anat_file",
+      "where": {
+        "acquisition.label": {
+          "$regex": "_MPR_(Cor|Tra)$"
+        }
+      },
+      "initialize": {
+        "ignore": true
+      }
+    },
+    {
+      "rule": "bids_func_file",
+      "initialize": {
+        "Modality": {
+          "$switch": {
+            "$on": "file.info.ImageType",
+            "$cases": [
+              {
+                "$eq": [
+                  "ORIGINAL",
+                  "PRIMARY",
+                  "M",
+                  "ND",
+                  "NORM",
+                  "MOSAIC"
+                ],
+                "$value": "bold"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "rule": "bids_fieldmap_phase_encoded_file",
+      "initialize": {
+        "IntendedFor": [
+          {
+            "Folder": "func"
+          }
+        ]
+      }
+    },
+    {
+      "rule": "gre_fieldmap_file",
+      "where": {
+        "file.info.ImageType": "P"
+      },
+      "initialize": {
+        "Modality": "phasediff",
+        "EchoTime1": [
+          {
+            "Folder": "fmap",
+            "Modality": "magnitude1"
+          }
+        ],
+        "EchoTime2": [
+          {
+            "Folder": "fmap",
+            "Modality": "magnitude2"
+          }
+        ],
+        "delete_info": [
+          "EchoTime",
+          "EchoNumber"
+        ]
+      }
+    },
+    {
+      "rule": "gre_fieldmap_file",
+      "where": {
+        "file.info.ImageType": "M"
+      },
+      "initialize": {
+        "Modality": {
+          "$switch": {
+            "$on": "file.info.EchoNumber",
+            "$cases": [
+              {
+                "$eq": 2,
+                "$value": "magnitude2"
+              },
+              {
+                "$default": true,
+                "$value": "magnitude1"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "resolvers": [
+    {
+      "id": "phasediff_echo_time1",
+      "templates": [
+        "fieldmap_file"
+      ],
+      "update": "file.info.EchoTime1",
+      "filter": "file.info.BIDS.EchoTime1",
+      "resolveFor": "session",
+      "type": "file",
+      "value": "file.info.EchoTime"
+    },
+    {
+      "id": "phasediff_echo_time2",
+      "templates": [
+        "fieldmap_file"
+      ],
+      "update": "file.info.EchoTime2",
+      "filter": "file.info.BIDS.EchoTime2",
+      "resolveFor": "session",
+      "type": "file",
+      "value": "file.info.EchoTime"
+    }
+  ]
+}

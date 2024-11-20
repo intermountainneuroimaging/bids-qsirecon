@@ -1,0 +1,4 @@
+BIDS specification version: less than 1.4.0
+Description: Flywheel Engineer Curated, from former bids-templates repo
+Template last modified: July 27, 2018
+Filename from archived repo (https://gitlab.com/flywheel-io/public/bids-templates): ochsner-scan-project-template.json

@@ -1,0 +1,315 @@
+{
+    "author": "Flywheel",
+    "cite": "https://qsiprep.readthedocs.io/en/latest/citing.html",
+    "command": "python /flywheel/v0/run.py",
+    "config": {
+        "debug": {
+            "default": false,
+            "description": "Log debug messages",
+            "type": "boolean"
+        },
+        "gear-keep-output": {
+            "default": false,
+            "description": "WARNING. Used for debugging purposes only! Don't delete output. Output is always zipped into a single file for easy download. Choose this option to prevent output deletion after zipping.",
+            "type": "boolean"
+        },
+        "bids_app_args": {
+            "description": "[arg1 [arg2 ...]]",
+            "default": "",
+            "type": "string"
+        },
+        "verbose": {
+            "default": "v",
+            "description": "increases log verbosity for each occurrence, debug level is -vvv",
+            "enum": [
+                "",
+                "v",
+                "vv",
+                "vvv"
+            ],
+            "type": "string"
+        },
+        "input-type": {
+            "default": "qsiprep",
+            "description": "Specify which pipeline was used to create the data specified as the input_dir.Not necessary to specify if the data was processed by QSIPrep. Other options include “ukb” for data processed with the UK BioBank minimal preprocessing pipeline and “hcpya” for the HCP young adult minimal preprocessing pipeline.",
+            "enum": [
+                "qsiprep",
+                "ukb",
+                "hcpya"
+            ],
+            "type": "string"
+        },
+        "recon-spec": {
+            "default": "",
+            "description": "Select reconstruction workflow from list of available workflows. Alternatively, leave blank and include json file specifying a reconstruction pipeline to be run after preprocessing.",
+            "enum": [
+                "",
+                "mrtrix_multishell_msmt_ACT-fast",
+                "mrtrix_multishell_msmt_ACT-hsvs",
+                "mrtrix_multishell_msmt_noACT",
+                "mrtrix_singleshell_ss3t_ACT-fast",
+                "mrtrix_singleshell_ss3t_ACT-hsvs",
+                "mrtrix_singleshell_ss3t_noACT",
+                "mrtrix_multishell_msmt_pyafq_tractometry",
+                "pyafq_tractometry",
+                "amico_noddi",
+                "TORTOISE",
+                "dsi_studio_gqi",
+                "dsi_studio_autotrack",
+                "ss3t_autotrack",
+                "dipy_mapmri",
+                "dipy_dk",
+                "dipy_3dshore",
+                "csdsi_3dshore",
+                "hbcd_scalar_maps",
+                "multishell_scalarfest",
+                "reorient_fslstd",
+                "test_scalar_maps"
+            ],
+            "type": "string"
+        },
+        "atlases": {
+            "description": "Selection of atlases to apply to the data. Built-in atlases include: AAL116, AICHA384Ext, Brainnetome246Ext, Gordon333Ext, and the 4S atlases. If left blank, all available atlases are included in workflow.",
+            "default": "",
+            "enum": [
+                "",
+                "4S156Parcels",
+                "4S256Parcels",
+                "4S456Parcels",
+                "Brainnetome246Ext",
+                "AICHA384Ext",
+                "Gordon333Ext",
+                "AAL116"
+            ],
+            "type": "string"
+        },
+        "output-resolution": {
+            "description": "the isotropic voxel size in mm the data will be resampled to after preprocessing. If set to a lower value than the original voxel size, your data will be upsampled using BSpline interpolation.",
+            "optional": true,
+            "type": "number"
+        },
+        "n_cpus": {
+            "description": "Number of CPUs/cores to use. Leave blank or set to 0 to use the maximum available in the system.",
+            "optional": true,
+            "type": "integer"
+        },
+        "mem_mb": {
+            "description": "Maximum memory to use (MB). Leave blank or set to 0 to use the maximum available in the system.",
+            "optional": true,
+            "type": "integer"
+        },
+        "gear-save-intermediate-output": {
+            "default": false,
+            "description": "Gear will save ALL intermediate output into qsiprep_work.zip",
+            "type": "boolean"
+        },
+        "gear-intermediate-files": {
+            "description": "Space separated list of FILES to retain from the intermediate work directory.",
+            "default": "",
+            "type": "string"
+        },
+        "gear-intermediate-folders": {
+            "description": "Space separated list of FOLDERS to retain from the intermediate work directory.",
+            "default": "",
+            "type": "string"
+        },
+        "gear-dry-run": {
+            "default": false,
+            "description": "Do everything except actually executing qsiprep",
+            "type": "boolean"
+        },
+        "gear-writable-dir": {
+            "default": "/pl/active/ics/fw_temp_data",
+            "description": "Gears expect to be able to write temporary files in /flywheel/v0/.  If this location is not writable (such as when running in Singularity), this path will be used instead.  fMRIPrep creates a large number of files so this disk space should be fast and local.",
+            "type": "string"
+        },
+        "freesurfer_license_key": {
+            "description": "Text from license file generated during FreeSurfer registration. *Entries should be space separated*",
+            "type": "string",
+            "optional": true
+        },
+        "slurm-cpu": {
+            "default": "1",
+            "description": "[SLURM] How many cpu-cores to request per command/task. This is used for the underlying '--cpus-per-task' option. If not running on HPC, then this flag is ignored",
+            "type": "string"
+        },
+        "slurm-ram": {
+            "default": "12G",
+            "description": "[SLURM] How much RAM to request. This is used for the underlying '--mem-per-cpu' option. If not running on HPC, then this flag is ignored",
+            "type": "string"
+        },
+        "slurm-ntasks": {
+            "default": "1",
+            "description": "[SLURM] Total number of tasks/commands across all nodes (not equivalent to neuroimaging tasks). Using a value greater than 1 for code that has not been parallelized will not improve performance (and may break things).",
+            "type": "string"
+        },
+        "slurm-nodes": {
+            "default": "1",
+            "description": "[SLURM] How many HPC nodes to run on",
+            "type": "string"
+        },
+        "slurm-partition": {
+            "default": "blanca-ics",
+            "description": "[SLURM] Blanca, Alpine, or Summit partitions can be entered",
+            "type": "string"
+        },
+        "slurm-qos": {
+            "default": "blanca-ics",
+            "description": "[SLURM] For Blanca the QOS has a different meaning, ie blanca-ics vs blanca-ibg, etc. For Alpine and Summit, the QOS should be set to normal if running a job for 1 day or less, and set to long if running a job with a maximum walltime of 7 days",
+            "type": "string"
+        },
+        "slurm-time": {
+            "default": "1428",
+            "description": "[SLURM] Maximum walltime requested after which your job will be cancelled if it hasn't finished. Default to 1 day",
+            "type": "string"
+        }
+    },
+    "custom": {
+        "analysis-level": "participant",
+        "bids-app-binary": "qsirecon",
+        "bids-app-modalities": [
+            "anat",
+            "dwi",
+            "fmap",
+            "func"
+        ],
+        "flywheel": {
+            "suite": "Computational Models (GLM, etc)"
+        },
+        "gear-builder": {
+            "category": "analysis",
+            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc1"
+        },
+        "license": {
+            "non-commercial-use-only": false,
+            "main": {
+                "name": "BSD-3-Clause",
+                "url": "https://github.com/PennLINC/qsirecon/blob/main/LICENSE"
+            },
+            "dependencies": [
+                {
+                    "name": "Other",
+                    "url": "https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Licence"
+                },
+                {
+                    "name": "Other",
+                    "url": "https://github.com/ANTsX/ANTs/blob/v2.2.0/COPYING.txt"
+                },
+                {
+                    "name": "Other",
+                    "url": "https://afni.nimh.nih.gov/pub/dist/doc/program_help/README.copyright.html"
+                },
+                {
+                    "name": "Other",
+                    "url": "https://dsi-studio.labsolver.org/download.html"
+                },
+                {
+                    "name": "MPL-2.0",
+                    "url": "https://github.com/MRtrix3/mrtrix3/blob/master/LICENCE.txt"
+                }
+            ]
+        }
+    },
+    "description": "(HPC Compatible) BIDS qsirecon 0.23.2 \n qsirecon is a dMRI reconstruction pipeline used for ODF/FOD reconstruction, tractography, parameter estimation, and more.\n\nA system for running state-of-the-art reconstruction pipelines that include algorithms from Dipy, MRTrix, DSI Studio and others.\n\n",
+    "environment": {
+        "AFNI_IMSAVE_WARNINGS": "NO",
+        "AFNI_INSTALLDIR": "/opt/afni-latest",
+        "ANTS_DEPS": "zlib1g-dev",
+        "ANTSPATH": "/opt/ants/bin",
+        "ARTHOME": "/opt/art",
+        "C3DPATH": "/opt/convert3d-nightly",
+        "CRN_SHARED_DATA": "/niworkflows_data",
+        "CUDA_VERSION": "10.2.89",
+        "DIPY_HOME": "/home/qsiprep/.dipy",
+        "DSI_STUDIO_DEPS": "qt512base qt512charts-no-lgpl",
+        "FREESURFER_DEPS": "bc ca-certificates curl libgomp1 libxmu6 libxt6 tcsh perl",
+        "FREESURFER_HOME": "/opt/freesurfer",
+        "FS_OVERRIDE": "0",
+        "FSL_DEPS": "libquadmath0",
+        "FSL_DIR": "/opt/fsl-6.0.5.1",
+        "FSF_OUTPUT_FORMAT": "nii.gz",
+        "FSLGECUDAQ": "cuda.q",
+        "FSLOUTPUTTYPE": "NIFTI_GZ",
+        "FUNCTIONALS_DIR": "/opt/freesurfer/sessions",
+        "LD_LIBRARY_PATH": "/opt/qt512/lib/x86_64-linux-gnu:/opt/qt512/lib:/opt/qt512/lib/x86_64-linux-gnu:/opt/qt512/lib:/opt/ants/lib:/opt/fsl-6.0.5.1/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64",
+        "LOCAL_DIR": "/opt/freesurfer/local",
+        "MINC_BIN_DIR": "/opt/freesurfer/mni/bin",
+        "MINC_LIB_DIR": "/opt/freesurfer/mni/lib",
+        "MNI_DATAPATH": "/opt/freesurfer/mni/data",
+        "MNI_DIR": "/opt/freesurfer/mni",
+        "MNI_PERL5LIB": "/opt/freesurfer/mni/lib/perl5/5.8.5",
+        "MRTRIX3_DEPS": "bzip2 ca-certificates curl libpng16-16 libblas3 liblapack3",
+        "NCCL_VERSION": "2.11.4",
+        "NVARCH": "x86_64",
+        "NV_CUDA_CUDART_VERSION": "10.2.89-1",
+        "NV_CUDA_LIB_VERSION": "10.2.89-1",
+        "NV_LIBCUBLAS_PACKAGE": "libcublas10=10.2.2.89-1",
+        "NV_LIBCUBLAS_PACKAGE_NAME": "libcublas10",
+        "NV_LIBCUBLAS_VERSION": "10.2.2.89-1",
+        "NV_LIBCUSPARSE_VERSION": "10.2.89-1",
+        "NV_LIBNCCL_PACKAGE": "libnccl2=2.11.4-1+cuda10.2",
+        "NV_LIBNCCL_PACKAGE_NAME": "libnccl2",
+        "NV_LIBNCCL_PACKAGE_VERSION": "2.11.4-1",
+        "NV_LIBNPP_VERSION": "10.2.89-1",
+        "NV_ML_REPO_ENABLED": "1",
+        "NV_ML_REPO_URL": "https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64",
+        "NV_NVTX_VERSION": "10.2.89-1",
+        "NVIDIA_DRIVER_CAPABILITIES": "compute,utility",
+        "NVIDIA_REQUIRE_CUDA": "cuda>=10.2 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419 brand=tesla,driver>=440,driver<441",
+        "NVIDIA_VISIBLE_DEVICES": "all",
+        "OS": "Linux",
+        "PATH": "/opt/poetry/bin:/opt/qt512/bin:/opt/art/bin:/opt/convert3d-nightly/bin:/usr/local/miniconda/bin:/opt/freesurfer/bin:/bin:/opt/freesurfer/tktools:/opt/freesurfer/mni/bin:/opt/qt512/bin:/opt/fsl-6.0.5.1/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/ants/bin:/opt/dsi-studio/dsi_studio_64:/opt/mrtrix3-latest/bin:/opt/3Tissue/bin:/opt/afni-latest",
+        "PERL5LIB": "/opt/freesurfer/mni/lib/perl5/5.8.5",
+        "PKG_CONFIG_PATH": "/opt/qt512/lib/pkgconfig:/opt/qt512/lib/pkgconfig:",
+        "PYTHONUNBUFFERED": "1",
+        "QSIRECON_ATLAS": "/atlas/qsirecon_atlases",
+        "QT_BASE_DIR": "/opt/qt512",
+        "QTDIR": "/opt/qt512",
+        "SHLVL": "1",
+        "SUBJECTS_DIR": "/opt/freesurfer/subjects",
+        "FSLDIR": "/opt/fsl-6.0.5.1",
+        "FSLMULTIFILEQUIT": "TRUE",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MRTRIX_NTHREADS": "1",
+        "KMP_WARNINGS": "0",
+        "IS_DOCKER_8395080871": "1",
+        "FLYWHEEL": "/flywheel/v0",
+        "POETRY_HOME": "/opt/poetry",
+        "POETRY_VERSION": "1.7.0",
+        "POETRY_VIRTUALENVS_CREATE": "false"
+    },
+    "inputs": {
+        "bidsignore": {
+            "description": "A .bidsignore file to provide to the bids-validator that this gear runs before running the main command.",
+            "base": "file",
+            "optional": true
+        },
+        "preprocessing-pipeline-zip": {
+            "description": "Select preprocessing directory zip. Preprocessing outputs must be in bids derivative format. Example compatible pipelines: qsiprep",
+            "base": "file",
+            "optional": false
+        },
+        "freesurfer_license_file": {
+            "description": "FreeSurfer license file, provided during registration with FreeSurfer. This file will be copied to the $FSHOME directory and used during execution of the Gear.",
+            "base": "file",
+            "optional": true
+        },
+        "api-key": {
+            "base": "api-key",
+            "read-only": true
+        },
+        "recon-spec": {
+            "description": "json file specifying a reconstruction pipeline. Include for use with custom workflows or to run multi-workflow processing. Built-in recon-spec may be selected using configuration settings.",
+            "base": "file",
+            "optional": true
+        }
+    },
+    "label": "BIDS QSIRecon",
+    "license": "MIT",
+    "maintainer": "Flywheel <support@flywheel.io>",
+    "name": "bids-qsirecon",
+    "source": "https://qsirecon.readthedocs.io/en/latest/",
+    "url": "https://github.com/intermountainneuroimaging/bids-qsirecon",
+    "version": "0.23.2_inc0.0rc1"
+}

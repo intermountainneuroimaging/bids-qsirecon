@@ -1,0 +1,132 @@
+{
+  "extends": "bids-v1",
+  "description": "Remove session label from BIDS filenames by unsetting the session definition.",
+  "definitions": {
+    "session": {
+      "description": "BIDS session template",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Label",
+          "default": "",
+          "pattern": "^[0-9]+$"
+        },
+        "Subject": {
+          "type": "string",
+          "title": "Subject Code",
+          "default": "",
+          "auto_update": "<subject.code>"
+        }
+      },
+      "required": []
+    }
+  },
+  "exclude_rules": [
+    "bids_session",
+    "bids_fieldmap_phase_encoded_file",
+    "bids_diffusion_file"
+  ],
+  "rules": [
+    {
+      "id": "bids_session",
+      "template": "session",
+      "where": {
+        "container_type": "session"
+      },
+      "initialize": {
+        "Label": {
+          "session.label": ""
+        }
+      }
+    },
+    {
+      "id": "bids_fieldmap_phase_encoded_file",
+      "template": "fieldmap_phase_encoded_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "NIfTI"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Fieldmap"
+          ]
+        }
+      },
+      "initialize": {
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "([^a-zA-Z0-9]|^)(?P<value>[aprlhfAPRLHF]{2})([^a-zA-Z0-9]|$)"
+          }
+        },
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": [
+              "(^|_)run-(?P<value>\\d+)",
+              "(^|_)run(?P<value>[=+])"
+            ]
+          },
+          "$run_counter": {
+            "key": "field_map.{file.info.BIDS.Dir}"
+          }
+        }
+      }
+    },
+    {
+      "id": "bids_diffusion_file",
+      "template": "diffusion_file",
+      "where": {
+        "container_type": "file",
+        "file.type": {
+          "$in": [
+            "nifti",
+            "bvec",
+            "bval",
+            "NIfTI",
+            "BVEC",
+            "BVAL"
+          ]
+        },
+        "file.classification.Measurement": {
+          "$in": [
+            "Diffusion"
+          ]
+        },
+        "file.classification.Intent": {
+          "$in": [
+            "Structural"
+          ]
+        }
+      },
+      "initialize": {
+        "Acq": {
+          "acquisition.label": {
+            "$regex": "(^|_)acq-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Dir": {
+          "acquisition.label": {
+            "$regex": "(^|_)dir-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          }
+        },
+        "Run": {
+          "acquisition.label": {
+            "$regex": "(^|_)run-(?P<value>.*?)(_(acq|ce|dir|echo|mod|proc|rec|recording|run|task)-|$|_)"
+          },
+          "$run_counter": {
+            "key": "diffusion"
+          }
+        },
+        "Modality": "dwi"
+      }
+    }
+  ]
+}
