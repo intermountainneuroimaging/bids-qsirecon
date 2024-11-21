@@ -3,10 +3,16 @@
     "cite": "https://qsiprep.readthedocs.io/en/latest/citing.html",
     "command": "python /flywheel/v0/run.py",
     "config": {
-        "debug": {
-            "default": false,
-            "description": "Log debug messages",
-            "type": "boolean"
+        "gear-log-level": {
+            "default": "INFO",
+            "description": "Gear Log verbosity level (ERROR|WARNING|INFO|DEBUG)",
+            "type": "string",
+            "enum": [
+              "ERROR",
+              "WARNING",
+              "INFO",
+              "DEBUG"
+            ]
         },
         "gear-keep-output": {
             "default": false,
@@ -58,7 +64,7 @@
                 "dsi_studio_autotrack",
                 "ss3t_autotrack",
                 "dipy_mapmri",
-                "dipy_dk",
+                "dipy_dki",
                 "dipy_3dshore",
                 "csdsi_3dshore",
                 "hbcd_scalar_maps",
@@ -183,7 +189,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc2"
+            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc3"
         },
         "license": {
             "non-commercial-use-only": false,
@@ -316,5 +322,5 @@
     "name": "bids-qsirecon",
     "source": "https://qsirecon.readthedocs.io/en/latest/",
     "url": "https://github.com/intermountainneuroimaging/bids-qsirecon",
-    "version": "0.23.2_inc0.0rc2"
+    "version": "0.23.2_inc0.0rc3"
 }

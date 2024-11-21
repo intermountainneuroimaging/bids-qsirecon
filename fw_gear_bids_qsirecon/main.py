@@ -115,7 +115,7 @@ def prepare(
 
 
 def run(gear_options: dict, app_options: dict) -> int:
-    """Run QSIPrep itself.
+    """Run QSIRecon itself.
 
     Arguments:
         gear_options: dict with gear-specific options
@@ -135,8 +135,11 @@ def run(gear_options: dict, app_options: dict) -> int:
     Path(output_analysis_id_dir).mkdir(parents=True, exist_ok=True)
 
     # This is what it is all about
+    log.info(os.environ)
+
     exec_command(
         command,
+        environ=os.environ,
         dry_run=gear_options["dry-run"],
         shell=True,
         cont_output=True,

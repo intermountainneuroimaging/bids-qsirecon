@@ -114,6 +114,11 @@ def parse_config(
 
     gear_options["unzipped-files"] = orig
 
+    # matplotlib workaround for multiple runs on same hpc node
+    environ = os.environ
+    if 'MPLCONFIGDIR' not in environ or environ['MPLCONFIGDIR'].startswith('/home'):
+        environ['MPLCONFIGDIR'] = tempfile.mkdtemp(prefix='MPLCONFIGDIR-', dir=work_dir)
+
     return gear_options, app_options
 
 

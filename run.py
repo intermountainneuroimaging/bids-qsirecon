@@ -43,62 +43,6 @@ FREESURFER_HOME = "/opt/freesurfer"
 
 os.chdir("/flywheel/v0")
 
-def get_bids_data(
-    context: GearToolkitContext,
-    gear_options: dict,
-    tree_title: str,
-) -> Tuple[str, str, List[str]]:
-    """Get the data in BIDS structure.
-
-    Get the data in BIDS structure and return the subject_label and
-    run_label corresponding to the destination container.
-    It also returns any error found downloading the BIDS data.
-
-    For FW gears, it downloads the data
-    For RL containers, it just points/links to the storage folder
-    It should be independent of the specific BIDS-App
-
-    Args:
-        context (GearToolkitContext): gear context
-        gear_options (Dict): gear options
-        tree_title (str): title for the BIDS tree
-
-    Returns:
-        subject_label (str): FW subject_label, (from the hierarchy of the destination
-            container)
-        run_label (str): FW run_label, (from the hierarchy of the destination container)
-        errors (list[str]): list of generated errors
-    """
-    errors = []
-
-    # Given the destination container, figure out if running at the project,
-    # subject, or session level.
-    hierarchy = get_analysis_run_level_and_hierarchy(
-        context.client, context.destination["id"]
-    )
-
-    # This is the label of the project, subject or session and is used
-    # as part of the name of the output files.
-    run_label = hierarchy["run_label"]
-    run_label = sanitize_filename(run_label)
-
-    # Create HTML file that shows BIDS "Tree" like output
-    tree = True
-
-    error_code = download_bids_for_runlevel(
-        context,
-        hierarchy,
-        tree=tree,
-        tree_title=tree_title,
-        src_data=False,
-        folders=gear_options["bids-app-modalities"],
-        do_validate_bids=gear_options["run-bids-validation"],
-    )
-    if error_code > 0 and not gear_options["ignore-bids-errors"]:
-        errors.append("BIDS Error(s) detected")
-
-    return hierarchy["subject_label"], run_label, errors
-
 
 # pylint: disable=too-many-arguments
 def post_run(
@@ -227,6 +171,7 @@ def main(context: GearToolkitContext):
     # #adding the usual environment call
     # environ = get_and_log_environment()
 
+
     # TO-DO: install_freesurfer_license from the gear_toolkit takes the gear context as
     #    an argument, so it is only valid for FW instances. However, the functionality
     #    of taking a FreeSurfer license (either string or file) and copying it to
@@ -246,6 +191,18 @@ def main(context: GearToolkitContext):
         context,
         FREESURFER_LICENSE,
     )
+
+    # TemplateFlow seems to be baked in to the container since 2021-10-07 16:25:12 so this is not needed...actually, it is for now...
+    templateflow_dir = FWV0 / "templateflow"
+    templateflow_dir.mkdir()
+    os.environ["SINGULARITYENV_TEMPLATEFLOW_HOME"] = str(templateflow_dir)
+    os.environ["TEMPLATEFLOW_HOME"] = str(templateflow_dir)
+    orig = Path("/home/qsiprep/.cache/templateflow/")
+    # Fill writable templateflow directory with existing templates so they don't have to be downloaded
+    templates = list(orig.glob("*"))
+    for tt in templates:
+        # (templateflow_dir / tt.name).symlink_to(tt)
+        shutil.copytree(tt, templateflow_dir / tt.name)
 
     prepare_errors, prepare_warnings = prepare(
         gear_options=gear_options,
@@ -274,11 +231,6 @@ def main(context: GearToolkitContext):
             # format it horribly:
             new_participant_label = app_options["participant_label"][len("sub-") :]
             app_options["participant_label"] = new_participant_label
-
-    else:
-        run_label = "error"
-        log.info("Did not download BIDS because of previous errors")
-        print(errors)
 
     if len(errors) > 0:
         e_code = 1
@@ -337,14 +289,28 @@ def main(context: GearToolkitContext):
 if __name__ == "__main__":  # pragma: no cover
     # Get access to gear config, inputs, and sdk client if enabled.
     with GearToolkitContext() as gear_context:
+
+        # # Initialize logging, set logging level based on `debug` configuration
+        # # key in gear config.
+        gear_context.init_logging()
+        log.parent.handlers[0].setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+
+        if gear_context.config["gear-log-level"] == "DEBUG":
+            log.setLevel(logging.DEBUG)
+
+        if gear_context.config["gear-log-level"] == "INFO":
+            log.setLevel(logging.INFO)
+
+        if gear_context.config["gear-log-level"] == "WARNING":
+            log.setLevel(logging.WARNING)
+
+        if gear_context.config["gear-log-level"] == "ERROR":
+            log.setLevel(logging.ERROR)
+
         scratch_dir = run_in_tmp_dir(gear_context.config["gear-writable-dir"])
     # Has to be instantiated twice here, since parent directories might have
     # changed
     with GearToolkitContext() as gear_context:
-
-        # # Initialize logging, set logging level based on `debug` configuration
-        # # key in gear config.
-        # gear_context.init_logging()
 
         # Pass the gear context into main function defined above.
         return_code = main(gear_context)
