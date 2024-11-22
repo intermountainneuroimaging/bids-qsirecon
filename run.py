@@ -7,7 +7,7 @@ import shutil
 import sys
 from pathlib import Path
 from typing import List, Tuple, Union
-
+import glob
 from utils.flywheel_bids.results.zip_intermediate import (
     zip_all_intermediate_output,
     zip_intermediate_selected,
@@ -76,6 +76,10 @@ def post_run(
         dry_run=gear_options["dry-run"],
         exclude_files=exclude_files,
     )
+
+    # zip any .html files in output/<analysis_id>/
+    for html_dir in glob.glob(str(Path(analysis_output_dir) / "derivatives" / "qsirecon*")):
+        zip_htmls(str(gear_options["output-dir"]), gear_options["destination-id"], html_dir)
 
     # possibly save ALL intermediate output
     if gear_options["save-intermediate-output"]:
@@ -194,7 +198,7 @@ def main(context: GearToolkitContext):
 
     # TemplateFlow seems to be baked in to the container since 2021-10-07 16:25:12 so this is not needed...actually, it is for now...
     templateflow_dir = FWV0 / "templateflow"
-    templateflow_dir.mkdir()
+    templateflow_dir.mkdir(parents=True, exist_ok=True)
     os.environ["SINGULARITYENV_TEMPLATEFLOW_HOME"] = str(templateflow_dir)
     os.environ["TEMPLATEFLOW_HOME"] = str(templateflow_dir)
     orig = Path("/home/qsiprep/.cache/templateflow/")
@@ -202,7 +206,7 @@ def main(context: GearToolkitContext):
     templates = list(orig.glob("*"))
     for tt in templates:
         # (templateflow_dir / tt.name).symlink_to(tt)
-        shutil.copytree(tt, templateflow_dir / tt.name)
+        shutil.copytree(tt, templateflow_dir / tt.name, dirs_exist_ok = True)
 
     prepare_errors, prepare_warnings = prepare(
         gear_options=gear_options,
@@ -248,7 +252,6 @@ def main(context: GearToolkitContext):
             # Pass the args, kwargs to fw_gear_qsiprep.main.run function to execute
             # the main functionality of the gear.
             e_code = run(gear_options, app_options)
-
 
         except RuntimeError as exc:
             e_code = 1

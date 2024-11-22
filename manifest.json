@@ -185,11 +185,11 @@
             "func"
         ],
         "flywheel": {
-            "suite": "Computational Models (GLM, etc)"
+            "suite": "Diffusion Processing"
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.0rc3"
+            "image": "amhe4269/bids-qsirecon:0.23.2_inc0.1"
         },
         "license": {
             "non-commercial-use-only": false,
@@ -322,5 +322,5 @@
     "name": "bids-qsirecon",
     "source": "https://qsirecon.readthedocs.io/en/latest/",
     "url": "https://github.com/intermountainneuroimaging/bids-qsirecon",
-    "version": "0.23.2_inc0.0rc3"
+    "version": "0.23.2_inc0.1"
 }
